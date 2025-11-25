@@ -56,10 +56,12 @@
     .brand{
       display:flex; align-items:center; gap:14px; margin-bottom:16px;
     }
-    .brand-logo{
-      width:42px; height:42px; border-radius:10px;
-      background:radial-gradient(120% 120% at 10% 10%, #7bf3c6 0%, #66c0ff 30%, #7c5cff 70%, #10131a 100%);
-      box-shadow:var(--shadow);
+    .brand-logo-img {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      object-fit: cover;
+      box-shadow: var(--shadow);
     }
     .brand h1{
       font-size:18px; margin:0;
@@ -270,7 +272,7 @@
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-logo" aria-hidden="true"></div>
+        <img src="https://i.ibb.co/cjFTy0N/New-Project-33.png" alt="Sync Logo" class="brand-logo-img" />
         <div>
           <h1>SYNC Addon Docs</h1>
           <div class="version">Bedrock Automation Framework</div>
