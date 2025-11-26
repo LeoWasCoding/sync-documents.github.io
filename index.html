@@ -384,7 +384,7 @@
               <ul class="list">
                 <li><strong>Folders:</strong> Organize functions, variables, and loops.</li>
                 <li><strong>Functions:</strong> The rules you create; each has a hook and actions.</li>
-                <li><strong>Hooks:</strong> Triggers like Item Use, Block Break, Chat, Entity Hurt/Die.</li>
+                <li><strong>Hooks:</strong> Triggers like Item Use, Block Break, Chat, Entity Hurt/Die and many more...</li>
                 <li><strong>Events:</strong> Phases (before/after) that control timing and cancellation.</li>
                 <li><strong>Variables:</strong> Numeric storage (global/world or local/per-player per-folder).</li>
                 <li><strong>Custom UI:</strong> ActionForm/ModalForm to let players choose outcomes.</li>
@@ -515,6 +515,7 @@ Actions:
                 <li><strong>Item Use:</strong> Player uses an item (before/after).</li>
                 <li><strong>Player Break Block:</strong> Player breaks a block (before/after).</li>
                 <li><strong>Player Place Block:</strong> Player places a block (before/after).</li>
+                <li><strong>Player Interact With Block:</strong> Player right-clicks a block (e.g. door, chest, button, lever) (before/after).</li>
                 <li><strong>Entity Die:</strong> Any entity dies (after only).</li>
                 <li><strong>Entity Hurt:</strong> Any entity takes damage (after only).</li>
                 <li><strong>On Chat:</strong> Player sends a message (before/after).</li>
@@ -523,7 +524,10 @@ Actions:
             <div class="sub">
               <h4>Built-in special condition</h4>
               <p><strong>region &lt;name&gt;:</strong> true when the event occurs inside a protected region created via <code>/region</code>.</p>
-              <div class="tip">Use <strong>after</strong> for rewards/logging; use <strong>before</strong> for prevention/protection.</div>
+              <div class="tip">
+                Use <strong>after</strong> for rewards/logging; use <strong>before</strong> for prevention/protection.<br>
+                <strong>Player Interact With Block</strong> + <strong>atLocation</strong> = perfect for secret doors, hidden buttons, or pressure plates!
+              </div>
             </div>
           </div>
         </div>
@@ -588,6 +592,14 @@ Actions:
             <summary>Special: regions</summary>
             <div class="collapse-content">
               <p><strong>region &lt;name&gt;</strong> is true when the actor/event is inside a defined region created via <code>/region</code>.</p>
+            </div>
+          </details>
+          <details class="collapse">
+            <summary>Special: At Location</summary>
+            <div class="collapse-content">
+              <p><strong>atLocation &lt;x y z&gt;</strong> – True only if the event happens at the exact block coordinates.</p>
+              <pre><code>Example: atLocation 10 54 -3</code></pre>
+              <div class="tip">Works perfectly with Player Interact With Block, Break/Place Block, and any hook that has a block location.</div>
             </div>
           </details>
           <div class="tip">Combine built-in conditions with variable conditions for precise behavior and protection logic.</div>
@@ -732,7 +744,7 @@ Message: "Wheat broken: {wheatbroken}"</code></pre>
               <ul class="list">
                 <li><strong>Player:</strong> <code>{player}</code>, <code>{player health}</code>, <code>{player maxhealth}</code></li>
                 <li><strong>Items:</strong> <code>{item}</code>, <code>{item_name}</code>, <code>{item_lore}</code>, <code>{raw item}</code></li>
-                <li><strong>Blocks:</strong> <code>{broken block}</code>, <code>{placed block}</code>, <code>{block_name}</code>, <code>{raw block}</code></li>
+                <li><strong>Blocks:</strong> <code>{broken block}</code>, <code>{placed block}</code>, <code>{interacted block}</code>, <code>{block_name}</code>, <code>{raw block}</code></li>
                 <li><strong>Entities:</strong> <code>{dead entity}</code>, <code>{entity_name}</code>, <code>{raw victim}</code>, attacker fields</li>
                 <li><strong>Combat:</strong> <code>{damage}</code>, <code>{damage cause}</code>, <code>{killer}</code></li>
                 <li><strong>Coords:</strong> <code>{x}</code>, <code>{y}</code>, <code>{z}</code></li>
@@ -1287,6 +1299,15 @@ Var condition (require): "{rank} == admin"</code></pre>
                 <pre><code>Loop: global, interval 24000
             Command: give @a cookie 1
             Broadcast: "Daily cookie gift delivered!"</code></pre>
+              </div>
+              <div class="example">
+                <h5>16) Secret Button at Exact Location</h5>
+                <p class="desc">Only trigger when player right-clicks a specific button.</p>
+                <pre><code>Hook: Player Interact With Block (after)
+            Input: stone_button
+            Condition: atLocation 120 64 -85
+            Message: "§aYou found the secret button!"
+            Command: give {player} diamond 5</code></pre>
               </div>
             </div>
             </details>
