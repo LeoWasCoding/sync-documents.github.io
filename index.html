@@ -1340,89 +1340,99 @@ Var condition (require): "{rank} == admin"</code></pre>
   </div>
 
   <script>
-    // Live search across sections: filters by title and content, highlights matches
-    (function(){
-      const input = document.getElementById('searchInput');
-      const sections = Array.from(document.querySelectorAll('article.section'));
-      const navLinks = Array.from(document.querySelectorAll('.nav a'));
-
-      function normalize(t){ return (t||'').toLowerCase(); }
-
-      function clearHighlights(el){
-        const marks = el.querySelectorAll('mark');
-        marks.forEach(m => {
-          const text = document.createTextNode(m.textContent);
-          m.parentNode.replaceChild(text, m);
-          m.parentNode.normalize();
-        });
-      }
-
-      function highlight(el, needle){
-        if(!needle) return;
-        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
-        const matches = [];
-        while(walker.nextNode()){
-          const node = walker.currentNode;
-          const text = node.nodeValue;
-          const idx = text.toLowerCase().indexOf(needle);
-          if(idx > -1 && text.trim().length){
-            matches.push({ node, idx, len: needle.length });
-          }
-        }
-        matches.forEach(m=>{
-          const { node, idx, len } = m;
-          const span = document.createElement('span');
-          const before = document.createTextNode(node.nodeValue.slice(0, idx));
-          const mark = document.createElement('mark');
-          mark.textContent = node.nodeValue.slice(idx, idx+len);
-          const after = document.createTextNode(node.nodeValue.slice(idx+len));
-          span.appendChild(before); span.appendChild(mark); span.appendChild(after);
-          node.parentNode.replaceChild(span, node);
-        });
-      }
-
-      function search(){
-        const q = normalize(input.value.trim());
-        navLinks.forEach(a => a.classList.remove('hidden'));
-
-        sections.forEach(sec => {
-          clearHighlights(sec);
-          if(!q){
-            sec.classList.remove('hidden');
-            return;
-          }
-          const title = normalize(sec.querySelector('.section-header h2')?.textContent || '');
-          const bodyText = normalize(sec.querySelector('.section-body')?.textContent || '');
-          const ok = title.includes(q) || bodyText.includes(q);
-          sec.classList.toggle('hidden', !ok);
-          if(ok){ highlight(sec, q); }
-        });
-
-        // Hide nav links that don't match
-        navLinks.forEach(a => {
-          const target = document.querySelector(a.getAttribute('href'));
-          if(!target) return;
-          a.classList.toggle('hidden', target.classList.contains('hidden'));
-        });
-      }
-
-      input.addEventListener('input', search);
-    })();
-
-    // Smooth scroll
-    (function(){
-      document.querySelectorAll('.nav a').forEach(a=>{
-        a.addEventListener('click', e=>{
-          const id = a.getAttribute('href');
-          const target = document.querySelector(id);
-          if(target){
-            e.preventDefault();
-            window.scrollTo({ top: target.offsetTop - 10, behavior: 'smooth' });
-            history.replaceState(null, '', id);
-          }
-        });
+  (function(){
+    const input = document.getElementById('searchInput');
+    const sections = Array.from(document.querySelectorAll('article.section'));
+    const navLinks = Array.from(document.querySelectorAll('.nav a'));
+  
+    function normalize(t){ return (t||'').toLowerCase(); }
+  
+    function clearHighlights(el){
+      const marks = el.querySelectorAll('mark');
+      marks.forEach(m => {
+        const text = document.createTextNode(m.textContent);
+        m.parentNode.replaceChild(text, m);
+        m.parentNode.normalize();
       });
-    })();
+    }
+  
+    function highlight(el, needle){
+      if(!needle) return;
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+      const matches = [];
+      while(walker.nextNode()){
+        const node = walker.currentNode;
+        const text = node.nodeValue;
+        const idx = text.toLowerCase().indexOf(needle);
+        if(idx > -1 && text.trim().length){
+          matches.push({ node, idx, len: needle.length });
+        }
+      }
+      matches.forEach(m=>{
+        const { node, idx, len } = m;
+        const span = document.createElement('span');
+        const before = document.createTextNode(node.nodeValue.slice(0, idx));
+        const mark = document.createElement('mark');
+        mark.textContent = node.nodeValue.slice(idx, idx+len);
+        const after = document.createTextNode(node.nodeValue.slice(idx+len));
+        span.appendChild(before); span.appendChild(mark); span.appendChild(after);
+        node.parentNode.replaceChild(span, node);
+      });
+    }
+  
+    function fuzzyMatch(text, query){
+      if(!text || !query) return false;
+      return text.includes(query) || (query.length > 2 && text.indexOf(query.slice(0, query.length-1)) > -1);
+    }
+  
+    function search(){
+      const q = normalize(input.value.trim());
+      navLinks.forEach(a => a.classList.remove('hidden'));
+  
+      sections.forEach(sec => {
+        clearHighlights(sec);
+        if(!q){
+          sec.classList.remove('hidden');
+          return;
+        }
+        const title = normalize(sec.querySelector('.section-header h2')?.textContent || '');
+        const bodyText = normalize(sec.querySelector('.section-body')?.textContent || '');
+        const ok = title.includes(q) || bodyText.includes(q) || fuzzyMatch(title,q) || fuzzyMatch(bodyText,q);
+        sec.classList.toggle('hidden', !ok);
+        if(ok){ highlight(sec, q); }
+      });
+  
+      navLinks.forEach(a => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if(!target) return;
+        a.classList.toggle('hidden', target.classList.contains('hidden'));
+      });
+    }
+  
+    function debounce(fn, delay=200){
+      let timer;
+      return (...args)=>{
+        clearTimeout(timer);
+        timer=setTimeout(()=>fn(...args),delay);
+      };
+    }
+  
+    input.addEventListener('input', debounce(search,200));
+  })();
+  
+  (function(){
+    document.querySelectorAll('.nav a').forEach(a=>{
+      a.addEventListener('click', e=>{
+        const id = a.getAttribute('href');
+        const target = document.querySelector(id);
+        if(target){
+          e.preventDefault();
+          window.scrollTo({ top: target.offsetTop - 10, behavior: 'smooth' });
+          history.replaceState(null, '', id);
+        }
+      });
+    });
+  })();
   </script>
 </body>
 </html>
