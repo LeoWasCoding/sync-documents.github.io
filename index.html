@@ -1,3397 +1,1699 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
   <meta charset="utf-8" />
-
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <title>Sync Addon Documentation</title>
-
   <meta name="description" content="Sync is a Minecraft Bedrock add-on that lets you create custom event-driven automations without code. This site documents everything: folders, functions, hooks, conditions, variables, loops, custom UI, regions, and more." />
-
   <style>
-
     :root{
-
       --bg:#0f0f0f;
-
       --bg-soft:#141414;
-
       --bg-softer:#1a1a1a;
-
       --text:#f5f5f5;
-
       --muted:#b0b0b0;
-
       --accent:#ffcc00;
-
       --accent-2:#ffb700;
-
       --accent-3:#ffd166;
-
       --danger:#ff6b6b;
-
       --good:#3ddc97;
-
       --warn:#f4a261;
-
       --border:#2a2a2a;
-
       --code-bg:#0b0b0b;
-
       --link:#ffcc00;
-
       --link-hover:#ffe066;
-
       --sidebar-width:300px;
-
       --shadow:0 10px 30px rgba(0,0,0,0.4);
-
       --radius:14px;
-
       --radius-sm:10px;
-
       --transition-fast: 0.2s ease;
-
       --transition-medium: 0.3s ease;
-
       --transition-slow: 0.5s ease;
-
     }
-
     *{box-sizing:border-box}
-
     html,body{height:100%}
-
     body{
-
       margin:0;
-
       font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Arial,"Noto Sans",sans-serif;
-
       color:var(--text);
-
       background:
-
         radial-gradient(1200px 600px at 15% -10%, rgba(255,204,0,0.08), transparent 60%),
-
         radial-gradient(1000px 500px at 85% 110%, rgba(255,183,0,0.10), transparent 70%),
-
         linear-gradient(180deg, #0b0b0b, #121212);
-
       overflow-y:auto;
-
       animation: fadeIn 1.5s ease-out forwards;
-
       scroll-behavior: smooth; /* Added smooth scrolling */
-
     }
-
     @keyframes fadeIn {
-
       from { opacity: 0; transform: translateY(20px); }
-
       to { opacity: 1; transform: translateY(0); }
-
     }
-
     a{color:var(--link);text-decoration:none; transition: color var(--transition-medium);}
-
     a:hover{color:var(--link-hover)}
-
     .layout{
-
       display:grid;
-
       grid-template-columns:var(--sidebar-width) 1fr;
-
       min-height:100vh;
-
       opacity: 0;
-
       animation: fadeIn 1s ease-out 0.2s forwards;
-
       max-width: 1920px; /* Added max-width for large screens to prevent over-stretching */
-
       margin: 0 auto; /* Center the layout */
-
     }
-
     .sidebar{
-
       position:sticky; top:0; align-self:start;
-
       height:100vh; overflow:auto;
-
       background:linear-gradient(180deg, #1a1a1a 0%, #0e0e0e 100%);
-
       border-right:1px solid var(--border);
-
       padding:20px 18px;
-
       transition: background var(--transition-slow), width var(--transition-medium); /* Added width transition for stretching */
-
     }
-
     .sidebar:hover {
-
       background:linear-gradient(180deg, #1f1f1f 0%, #121212 100%);
-
     }
-
     .brand{
-
       display:flex; align-items:center; gap:14px; margin-bottom:16px;
-
       opacity: 0;
-
       animation: slideInLeft 0.8s ease-out forwards;
-
     }
-
     @keyframes slideInLeft {
-
       from { opacity: 0; transform: translateX(-30px); }
-
       to { opacity: 1; transform: translateX(0); }
-
     }
-
     .brand-logo-img {
-
       width: 42px;
-
       height: 42px;
-
       border-radius: 10px;
-
       object-fit: cover;
-
       box-shadow: var(--shadow);
-
       transition: transform var(--transition-slow), box-shadow var(--transition-slow);
-
     }
-
     .brand-logo-img:hover {
-
       transform: rotate(15deg) scale(1.1);
-
       box-shadow: 0 0 20px rgba(255,204,0,0.3);
-
     }
-
     .brand h1{
-
       font-size:18px; margin:0;
-
       letter-spacing:0.4px;
-
       background:linear-gradient(90deg, #ffcc00, #ffb700 60%, #ffd166);
-
       background-size: 200% auto;
-
       -webkit-background-clip:text; background-clip:text; color:transparent;
-
       font-weight:800;
-
       animation: gradientShift 5s ease infinite;
-
     }
-
     @keyframes gradientShift {
-
       0% { background-position: 0% 50%; }
-
       50% { background-position: 100% 50%; }
-
       100% { background-position: 0% 50%; }
-
     }
-
     .version{font-size:12px;color:var(--muted);margin-top:-2px}
-
     .search{
-
       margin:16px 0 18px; position:relative;
-
       opacity: 0;
-
       animation: fadeIn 1s ease-out 0.4s forwards;
-
     }
-
     .search input{
-
       width:100%; padding:12px 12px 12px 40px;
-
       border-radius:12px; border:1px solid var(--border);
-
       background:var(--bg-soft); color:var(--text);
-
       outline:none; box-shadow:inset 0 0 0 1px #0003;
-
       transition: border-color var(--transition-medium), box-shadow var(--transition-medium), width var(--transition-medium); /* Added width transition */
-
     }
-
     .search input:focus {
-
       border-color: var(--accent);
-
       box-shadow: 0 0 0 3px rgba(255,204,0,0.2);
-
       width: calc(100% + 10px); /* Slight stretch on focus */
-
     }
-
     .search .icon{
-
       position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted);
-
       font-size:18px;
-
       transition: color var(--transition-medium);
-
     }
-
     .search input:focus + .icon {
-
       color: var(--accent);
-
     }
-
     .nav{
-
       margin-top:8px;
-
     }
-
     .nav h3{
-
       margin:20px 8px 10px; font-size:12px; color:var(--muted); letter-spacing:1px; text-transform:uppercase;
-
       opacity: 0;
-
       animation: fadeIn 1s ease-out 0.6s forwards;
-
     }
-
     .nav a{
-
       display:flex; align-items:center; gap:10px;
-
       padding:10px 12px; border-radius:10px; color:var(--text);
-
       border:1px solid transparent;
-
       transition: background var(--transition-medium), border-color var(--transition-medium), transform var(--transition-medium);
-
       opacity: 0;
-
       animation: slideInLeft 0.8s ease-out forwards;
-
     }
-
     .nav a:nth-child(1) { animation-delay: 0.7s; }
-
     .nav a:nth-child(2) { animation-delay: 0.75s; }
-
     .nav a:nth-child(3) { animation-delay: 0.8s; }
-
     /* Add more for additional items as needed */
-
     .nav a:hover{background:var(--bg-soft); border-color:var(--border); transform: translateX(5px) scale(1.02);} /* Added scale for stretch effect */
-
     .nav .dot{
-
       width:8px; height:8px; border-radius:50%;
-
       background:linear-gradient(180deg, #ffcc00, #ffb700);
-
       box-shadow:0 0 0 2px #0006;
-
       transition: box-shadow var(--transition-medium), transform var(--transition-fast);
-
     }
-
     .nav a:hover .dot {
-
       box-shadow: 0 0 0 3px rgba(255,204,0,0.3);
-
       transform: scale(1.2); /* Added stretch on dot */
-
     }
-
     .content{
-
       padding:30px;
-
       opacity: 0;
-
       animation: fadeIn 1s ease-out 0.3s forwards;
-
       transition: padding var(--transition-medium); /* Allow padding to adjust */
-
     }
-
     .hero{
-
       background:
-
         radial-gradient(800px 400px at 10% 0%, rgba(255,204,0,0.16), transparent 70%),
-
         radial-gradient(900px 400px at 100% 120%, rgba(255,183,0,0.12), transparent 65%),
-
         linear-gradient(180deg, #121212, #1a1a1a);
-
       border:1px solid var(--border);
-
       border-radius:var(--radius);
-
       box-shadow:var(--shadow);
-
       padding:28px;
-
       transition: box-shadow var(--transition-slow), transform var(--transition-slow), padding var(--transition-medium);
-
       opacity: 0;
-
       animation: pulseGlow 2s ease-in-out infinite alternate, fadeIn 1s ease-out 0.5s forwards;
-
     }
-
     @keyframes pulseGlow {
-
       from { box-shadow: var(--shadow); transform: scale(1); }
-
       to { box-shadow: 0 15px 45px rgba(255,204,0,0.1); transform: scale(1.01); } /* Added subtle stretch */
-
     }
-
     .hero h2{margin:0 0 10px; font-size:28px}
-
     .hero p{color:var(--muted); margin:0}
-
     .badge{
-
       display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; margin:4px 8px 0 0;
-
       border:1px solid var(--border); color:#ffe066; background:linear-gradient(180deg, #1a1a1a, #101010);
-
       transition: transform var(--transition-medium), background var(--transition-medium);
-
     }
-
     .badge:hover {
-
       transform: scale(1.1) rotate(5deg); /* Enhanced with rotation for fun */
-
       background:linear-gradient(180deg, #202020, #151515);
-
     }
-
     .grid{
-
       display:grid; gap:18px; margin-top:22px;
-
       grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); /* Made more flexible for stretching */
-
     }
-
     @media (max-width: 1200px){
-
       :root { --sidebar-width: 250px; } /* Adjust sidebar for medium screens */
-
       .content { padding: 20px; }
-
     }
-
     @media (max-width: 980px){
-
       .layout{grid-template-columns:1fr}
-
       .sidebar{position:relative; height:auto; width: 100%; } /* Full width stretch on mobile */
-
       .grid{grid-template-columns:1fr}
-
     }
-
     @media (max-width: 600px){
-
       .content { padding: 15px; }
-
       .hero { padding: 20px; }
-
     }
-
     .card{
-
       background:var(--bg-soft);
-
       border:1px solid var(--border);
-
       border-radius:var(--radius);
-
       padding:18px;
-
       box-shadow:var(--shadow);
-
       transition: transform var(--transition-medium), box-shadow var(--transition-medium);
-
       opacity: 0;
-
       animation: fadeInUp 1s ease-out forwards;
-
     }
-
     @keyframes fadeInUp {
-
       from { opacity: 0; transform: translateY(20px) scale(0.95); } /* Added scale for entry stretch */
-
       to { opacity: 1; transform: translateY(0) scale(1); }
-
     }
-
     .card:nth-child(1) { animation-delay: 0.6s; }
-
     .card:nth-child(2) { animation-delay: 0.7s; }
-
     /* Add more for additional cards */
-
     .card:hover {
-
       transform: translateY(-8px) scale(1.03); /* Added scale for hover stretch */
-
       box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-
     }
-
     .card h3{margin:0 0 8px}
-
     .section{
-
       margin-top:26px;
-
       background:var(--bg-soft);
-
       border:1px solid var(--border);
-
       border-radius:var(--radius);
-
       box-shadow:var(--shadow);
-
       overflow:hidden;
-
       transition: box-shadow var(--transition-slow), transform var(--transition-medium);
-
       opacity: 0;
-
       animation: fadeIn 1s ease-out 0.8s forwards;
-
     }
-
     .section:hover {
-
       box-shadow: 0 15px 40px rgba(0,0,0,0.5);
-
       transform: scale(1.01); /* Subtle stretch on hover */
-
     }
-
     .section-header{
-
       padding:18px 20px;
-
       background:var(--bg-softer);
-
       border-bottom:1px solid var(--border);
-
       display:flex; align-items:center; justify-content:space-between; gap:12px;
-
       transition: background var(--transition-medium);
-
     }
-
     .section-header:hover {
-
       background: var(--bg-soft);
-
     }
-
     .section-header h2{
-
       margin:0; font-size:20px;
-
       background:linear-gradient(90deg, #ffe066, #ffcc00);
-
       background-size: 200% auto;
-
       -webkit-background-clip:text; background-clip:text; color:transparent;
-
       animation: gradientShift 4s ease infinite;
-
     }
-
     .section-tools{display:flex; gap:10px}
-
     .kicker{font-size:12px;color:var(--muted)}
-
     .section-body{padding:18px 20px}
-
     .cols{display:grid; gap:18px; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr))} /* Flexible columns */
-
     @media (max-width:980px){.cols{grid-template-columns:1fr}}
-
     .sub{
-
       border:1px dashed var(--border);
-
       border-radius:var(--radius-sm);
-
       padding:14px;
-
       background:linear-gradient(180deg, #1a1a1a, #121212);
-
       transition: background var(--transition-medium), border-color var(--transition-medium), transform var(--transition-fast);
-
     }
-
     .sub:hover {
-
       background:linear-gradient(180deg, #202020, #171717);
-
       border-color: var(--accent-3);
-
       transform: scale(1.02); /* Stretch on hover */
-
     }
-
     .sub h4{margin:0 0 6px; font-size:16px}
-
     .list{margin:10px 0 0; padding-left:18px}
-
     .list li{margin:6px 0; transition: transform var(--transition-fast);}
-
     .list li:hover { transform: translateX(5px) scale(1.01); } /* Slight stretch */
-
     .tip{
-
       border-left:4px solid var(--accent);
-
       background:linear-gradient(180deg, #101010, #0e0e0e);
-
       margin:16px 0; padding:10px 14px; border-radius:10px;
-
       color:#ffe066;
-
       opacity: 0;
-
       animation: fadeInLeft 1s ease-out forwards;
-
       transition: transform var(--transition-medium);
-
     }
-
     .tip:hover {
-
       transform: translateX(10px); /* Slide stretch */
-
     }
-
     @keyframes fadeInLeft {
-
       from { opacity: 0; transform: translateX(-20px); }
-
       to { opacity: 1; transform: translateX(0); }
-
     }
-
     .warn{
-
       border-left:4px solid var(--warn);
-
       background:linear-gradient(180deg, #141114, #1a1411);
-
       color:#ffe6c3;
-
     }
-
     .good{
-
       border-left:4px solid var(--good);
-
       background:linear-gradient(180deg, #111914, #101a15);
-
       color:#cbffe9;
-
     }
-
     pre, code{
-
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New",monospace;
-
     }
-
     pre{
-
       margin:12px 0; padding:14px 16px; border-radius:12px;
-
       background:var(--code-bg);
-
       border:1px solid #222;
-
       overflow:auto;
-
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
-
       transition: box-shadow var(--transition-medium), transform var(--transition-medium);
-
     }
-
     pre:hover {
-
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1), 0 0 10px rgba(255,204,0,0.2);
-
       transform: scale(1.01); /* Stretch code blocks */
-
     }
-
     code{color:#ffe066; transition: color var(--transition-medium);}
-
     code:hover { color: #ffd166; }
-
     .example{
-
       border:1px solid var(--border);
-
       border-radius:12px; padding:14px;
-
       background:linear-gradient(180deg, #1a1a1a, #121212);
-
       margin:14px 0;
-
       transition: transform var(--transition-medium);
-
     }
-
     .example:hover {
-
       transform: scale(1.03); /* Larger stretch for examples */
-
     }
-
     .example h5{margin:0 0 8px; font-size:14px; color:#ffcc00}
-
     .example .desc{color:var(--muted); margin-bottom:8px}
-
     .collapse{
-
       border:1px solid var(--border);
-
       border-radius:12px; overflow:hidden; margin:12px 0;
-
       background:linear-gradient(180deg, #0f0f0f, #1a1a1a);
-
       transition: box-shadow var(--transition-medium), max-height var(--transition-slow);
-
     }
-
     .collapse:hover {
-
       box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-
     }
-
     .collapse summary{
-
       list-style:none; cursor:pointer; padding:12px 12px;
-
       font-weight:600; color:#ffd166;
-
       transition: background var(--transition-medium), color var(--transition-medium);
-
     }
-
     .collapse summary:hover {
-
       background: var(--bg-soft);
-
       color: #ffe066;
-
     }
-
     .collapse summary::-webkit-details-marker{display:none}
-
     .collapse-content{
-
       padding:12px 14px; border-top:1px solid var(--border); color:var(--text);
-
       animation: expand 0.5s ease-out;
-
     }
-
     @keyframes expand {
-
       from { opacity: 0; max-height: 0; transform: scaleY(0.9); } /* Added scale for stretch effect */
-
       to { opacity: 1; max-height: 500px; transform: scaleY(1); } /* Adjust max-height as needed */
-
     }
-
     .footer{
-
       margin-top:36px; padding:18px; border-top:1px solid var(--border);
-
       display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
-
       color:var(--muted);
-
       opacity: 0;
-
       animation: fadeIn 1s ease-out 1s forwards;
-
     }
-
     .credits{
-
       display:flex; gap:8px; align-items:center;
-
     }
-
     .credits .credit-badge{
-
       padding:6px 10px; border-radius:999px; border:1px solid var(--border);
-
       background:linear-gradient(180deg, #1a1a1a, #0e0e0e); color:#ffd166; font-size:12px;
-
       transition: transform var(--transition-slow);
-
     }
-
     .credits .credit-badge:hover {
-
       transform: rotate(360deg) scale(1.1); /* Fun spin with stretch */
-
     }
-
     .mc-line{
-
       display:inline-block; padding:8px 10px; border:1px solid var(--border);
-
       border-radius:10px; background:linear-gradient(180deg, #0f131a, #10131b);
-
       font-weight:700; letter-spacing:0.3px;
-
       transition: background var(--transition-medium), transform var(--transition-fast);
-
     }
-
     .mc-line:hover {
-
       background:linear-gradient(180deg, #121620, #131621);
-
       transform: scale(1.05); /* Stretch on hover */
-
     }
-
     .mc-b{color:#66c0ff}
-
     .mc-e{color:#ffd166}
-
     .mc-a{color:#7bf3c6}
-
     .mc-c{color:#ff6b6b}
-
     .mc-3{color:#4db2ff}
-
     .mc-4{color:#ff5b5b}
-
     .mc-8{color:#8892a0}
-
     .mc-d{color:#c58cff}
-
     .mc-6{color:#ffcd75}
-
     .mc-l{font-weight:900}
-
     .divider{
-
       height:1px; background:linear-gradient(90deg, transparent, #444, transparent);
-
       margin:16px 0;
-
       animation: dividerGlow 3s ease infinite;
-
     }
-
     @keyframes dividerGlow {
-
       0% { background: linear-gradient(90deg, transparent, #444, transparent); transform: scaleX(0.9); }
-
       50% { background: linear-gradient(90deg, transparent, #666, transparent); transform: scaleX(1.1); } /* Stretch animation */
-
       100% { background: linear-gradient(90deg, transparent, #444, transparent); transform: scaleX(0.9); }
-
     }
-
     #updated {
-
       color: #ffe066;
-
       font-weight: normal;
-
     }
-
     ::-webkit-scrollbar {
-
       width: 12px;
-
     }
-
   
-
     ::-webkit-scrollbar-track {
-
       background: #0f0f0f;
-
     }
-
   
-
     ::-webkit-scrollbar-thumb {
-
       background-color: #ffcc00;
-
       border-radius: 6px;
-
       border: 2px solid #0f0f0f;
-
       transition: background-color var(--transition-medium), transform var(--transition-fast);
-
     }
-
   
-
     ::-webkit-scrollbar-thumb:hover {
-
       background-color: #ffd166;
-
       transform: scale(1.2); /* Stretch scrollbar thumb */
-
     }
-
     mark{
-
       background:#4b3a00;
-
       color:#fff8dc;
-
       padding:0 2px; border-radius:3px;
-
       animation: highlightPulse 1.5s ease infinite;
-
     }
-
     @keyframes highlightPulse {
-
       0% { background: #4b3a00; transform: scale(1); }
-
       50% { background: #5a4700; transform: scale(1.05); } /* Pulse with stretch */
-
       100% { background: #4b3a00; transform: scale(1); }
-
     }
-
     .hidden{display:none !important}
-
     /* New enhancements */
-
     /* Parallax background effect (requires JS for full effect, but CSS base) */
-
     .parallax-bg {
-
       position: relative;
-
       overflow: hidden;
-
     }
-
     .parallax-bg::before {
-
       content: '';
-
       position: absolute;
-
       top: -50%; left: -50%;
-
       width: 200%; height: 200%;
-
       background: radial-gradient(circle, rgba(255,204,0,0.05) 0%, transparent 70%);
-
       transform: translate(0, 0);
-
       transition: transform 0.1s ease-out; /* For mouse move parallax via JS */
-
     }
-
     /* Tooltip enhancement */
-
     [data-tooltip] {
-
       position: relative;
-
       cursor: help;
-
     }
-
     [data-tooltip]::after {
-
       content: attr(data-tooltip);
-
       position: absolute;
-
       bottom: 100%; left: 50%;
-
       transform: translate(-50%, -10px) scale(0.8);
-
       background: var(--bg-softer);
-
       color: var(--text);
-
       padding: 6px 12px;
-
       border-radius: var(--radius-sm);
-
       border: 1px solid var(--border);
-
       white-space: nowrap;
-
       opacity: 0;
-
       pointer-events: none;
-
       transition: opacity var(--transition-medium), transform var(--transition-medium);
-
     }
-
     [data-tooltip]:hover::after {
-
       opacity: 1;
-
       transform: translate(-50%, -20px) scale(1); /* Stretch reveal */
-
     }
-
     /* Button styles for enhanced UX */
-
     .btn {
-
       display: inline-block;
-
       padding: 10px 20px;
-
       border-radius: var(--radius);
-
       background: linear-gradient(180deg, var(--accent), var(--accent-2));
-
       color: #000;
-
       font-weight: 600;
-
       text-decoration: none;
-
       transition: transform var(--transition-medium), box-shadow var(--transition-medium);
-
     }
-
     .btn:hover {
-
       transform: scale(1.05) translateY(-2px); /* Stretch and lift */
-
       box-shadow: 0 5px 15px rgba(255,204,0,0.4);
-
     }
-
     /* Loading spinner for async elements */
-
     .loading {
-
       display: inline-block;
-
       width: 20px;
-
       height: 20px;
-
       border: 3px solid var(--accent);
-
       border-top-color: transparent;
-
       border-radius: 50%;
-
       animation: spin 1s linear infinite;
-
     }
-
     @keyframes spin {
-
       to { transform: rotate(360deg); }
-
     }
-
     /* Back-to-top button */
-
     .back-to-top {
-
       position: fixed;
-
       bottom: 20px;
-
       right: 20px;
-
       background: var(--accent);
-
       color: #000;
-
       padding: 10px 15px;
-
       border-radius: 50%;
-
       opacity: 0;
-
       transition: opacity var(--transition-medium), transform var(--transition-medium);
-
     }
-
     .back-to-top.visible {
-
       opacity: 1;
-
       transform: scale(1.1); /* Stretch when visible */
-
     }
-
     .back-to-top:hover {
-
       transform: scale(1.2);
-
     }
-
   </style>
-
 </head>
-
 <head>
-
   <link rel="icon" type="image/png" href="https://i.ibb.co/cjFTy0N/New-Project-33.png">
-
   <meta property="og:title" content="SYNC Addon Docs">
-
   <meta property="og:description" content="Bedrock Automation Framework Documentation">
-
   <meta property="og:image" content="https://media.forgecdn.net/attachments/1404/148/new-project-32-_11zon-png.png">
-
   <meta property="og:url" content="https://leowascoding.github.io/sync/">
-
   <meta property="og:type" content="website">
-
   <meta name="twitter:card" content="summary_large_image">
-
   <meta name="twitter:image" content="https://media.forgecdn.net/attachments/1404/148/new-project-32-_11zon-png.png">
-
 </head>
-
 <body>
-
   <div class="layout">
-
     <!-- Sidebar -->
-
     <aside class="sidebar">
-
       <div class="brand">
-
         <img src="https://i.ibb.co/cjFTy0N/New-Project-33.png" alt="Sync Logo" class="brand-logo-img" />
-
         <div>
-
           <h1>SYNC Addon Docs</h1>
-
           <div class="version">Bedrock Automation Framework</div>
-
         </div>
-
       </div>
-
       <div class="search">
-
         <span class="icon">🔎</span>
-
         <input id="searchInput" type="text" placeholder="Search topics, syntax, examples..." aria-label="Search Sync docs" />
-
       </div>
-
       <nav class="nav" id="sidebarNav">
-
         <h3>Foundations</h3>
-
         <a href="#overview"><span class="dot"></span>Overview</a>
-
         <a href="#folders"><span class="dot"></span>Folders</a>
-
         <a href="#functions"><span class="dot"></span>Functions</a>
-
         <a href="#hooks"><span class="dot"></span>Hooks</a>
-
         <a href="#events"><span class="dot"></span>Events</a>
-
         <a href="#conditions"><span class="dot"></span>Conditions</a>
-
         <a href="#inputs"><span class="dot"></span>Inputs</a>
-
         <h3>Actions & Data</h3>
-
         <a href="#messages"><span class="dot"></span>Messages</a>
-
         <a href="#commands"><span class="dot"></span>Commands</a>
-
         <a href="#variables"><span class="dot"></span>Variables</a>
-
         <a href="#placeholders"><span class="dot"></span>Placeholders</a>
-
         <a href="#globals-locals"><span class="dot"></span>Globals vs Locals</a>
-
         <a href="#variable-conditions"><span class="dot"></span>Variable conditions</a>
-
         <h3>Flow & Control</h3>
-
         <a href="#execution-flow"><span class="dot"></span>Execution flow</a>
-
         <a href="#custom-ui"><span class="dot"></span>Custom UI (Beta)</a>
-
         <a href="#event-cancellation"><span class="dot"></span>Event cancellation</a>
-
         <a href="#loops"><span class="dot"></span>Loops</a>
-
         <a href="#regions"><span class="dot"></span>Protection regions</a>
-
         <h3>Commands</h3>
-
         <a href="#error-console"><span class="dot"></span>Error console</a>
-
         <a href="#variable-command"><span class="dot"></span>/variable</a>
-
         <a href="#varlist-command"><span class="dot"></span>/varlist</a>
-
         <a href="#broadcast-command"><span class="dot"></span>/broadcast</a>
-
         <a href="#send-command"><span class="dot"></span>/send</a>
-
         <h3>Guidance</h3>
-
         <a href="#tips"><span class="dot"></span>Tips, examples & best practices</a>
-
       </nav>
-
     </aside>
-
     <!-- Content -->
-
     <main class="content" id="content">
-
       <section class="hero">
-
         <h2>Sync: Create event-driven automations without code</h2>
-
         <p>Sync is a Minecraft Bedrock addon that lets you build powerful rules: listen to hooks, check conditions, and run actions all through in-game menus and custom UIs. No coding required. Fully developed and maintained by <strong>ExterLeo</strong>.</p>
-
         <p><strong>Join Discord:</strong>
-
           <a href="https://discord.gg/dWS69pE3qj">https://discord.gg/dWS69pE3qj</a>
-
         </p>
-
         <p><strong>Updated:</strong> <span id="updated"></span></p>
-
         <div style="margin-top:12px">
-
           <span class="badge">Beginner friendly</span>
-
           <span class="badge">Event-driven</span>
-
           <span class="badge">Custom UI</span>
-
           <span class="badge">Variables & conditions</span>
-
           <span class="badge">Protection regions</span>
-
         </div>
-
       </section>
-
       <div class="grid">
-
         <div class="card">
-
           <h3>Quick start</h3>
-
           <ul class="list">
-
             <li><strong>Open help:</strong> Use <code>/synchelp</code> to open the help menu in-game.</li>
-
             <li><strong>Main menu:</strong> Use <code>/menu</code> to manage folders, functions, and UIs.</li>
-
             <li><strong>Loops:</strong> Use <code>/loops</code> for periodic actions.</li>
-
             <li><strong>Debugging:</strong> Use <code>/console</code> to view recent command errors.</li>
-
           </ul>
-
           <div class="tip good">Start with a “Test” folder. Build a simple function (e.g., Item Use → apple → message), then expand.</div>
-
         </div>
-
         <div class="card">
-
           <h3>Minecraft-style formatting</h3>
-
           <div class="mc-line">
-
             <span class="mc-l mc-b">§l§bSync Help Menu</span> · <span class="mc-8">§8Folders</span> · <span class="mc-3">§3Overview</span> · <span class="mc-4 mc-l">§4Close</span>
-
           </div>
-
           <div class="tip">The website uses modern styling, but in-game texts can use § codes. You can preview colors above.</div>
-
         </div>
-
       </div>
-
       <!-- Overview -->
-
       <article class="section" id="overview" data-title="overview">
-
         <div class="section-header">
-
           <h2>Overview</h2>
-
           <div class="section-tools"><span class="kicker">Foundations</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What is Sync?</h4>
-
               <p>Sync is a Bedrock addon for building “if-this-then-that” automations. You use menus to define rules (functions), each triggered by a hook (event), optionally gated by conditions, and executed as actions (messages, commands, variable updates, or custom UI).</p>
-
               <ul class="list">
-
                 <li><strong>Folders:</strong> Organize functions, variables, and loops.</li>
-
                 <li><strong>Functions:</strong> The rules you create; each has a hook and actions.</li>
-
                 <li><strong>Hooks:</strong> Triggers like Item Use, Block Break, Chat, Entity Hurt/Die and many more...</li>
-
                 <li><strong>Events:</strong> Phases (before/after) that control timing and cancellation.</li>
-
                 <li><strong>Variables:</strong> Numeric storage (global/world or local/per-player per-folder).</li>
-
                 <li><strong>Custom UI:</strong> ActionForm/ModalForm to let players choose outcomes.</li>
-
                 <li><strong>Loops:</strong> Periodic actions every N ticks (no conditions/UI).</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Getting started</h4>
-
               <ol class="list">
-
                 <li><strong>Open /menu:</strong> Create a folder (e.g., “Test”).</li>
-
                 <li><strong>Create function:</strong> Name it, pick a hook (e.g., Item Use), set inputs (e.g., apple).</li>
-
                 <li><strong>Add actions:</strong> Message: “You used an apple!” or command.</li>
-
                 <li><strong>Test in-game:</strong> Use the item; verify behavior. Use <code>/console</code> for errors.</li>
-
               </ol>
-
               <div class="example">
-
                 <h5>Example: Apple boost</h5>
-
                 <p class="desc">Item Use → apple → after → message + command</p>
-
                 <pre><code>Hook: Item Use (after)
-
 Inputs: apple
-
 Actions:
-
  - message: "You munched an apple! {player} gets SPEED."
-
  - command (player): effect @s speed 10 1</code></pre>
-
               </div>
-
             </div>
-
           </div>
-
           <div class="tip">Think of Sync like spreadsheet rules: “When X happens and Y is true, do Z.” You don’t need to write code; menus and forms guide you.</div>
-
         </div>
-
       </article>
-
       <!-- Folders -->
-
       <article class="section" id="folders" data-title="folders">
-
         <div class="section-header">
-
           <h2>Folders</h2>
-
           <div class="section-tools"><span class="kicker">Organization</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What are folders?</h4>
-
               <p>Folders are containers for functions, variables, and loops. They help you keep large setups tidy and enable local (per-player) variable scoping per folder.</p>
-
               <ul class="list">
-
                 <li><strong>Structure:</strong> Each folder has its own function list, local variables, and optional per-player loops.</li>
-
                 <li><strong>Scoping:</strong> Local variables are stored per-player per-folder.</li>
-
                 <li><strong>Management:</strong> Create, rename, delete; resetting storage affects variables inside.</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>How to manage folders</h4>
-
               <ol class="list">
-
                 <li><strong>Open /menu</strong> → Folders.</li>
-
                 <li><strong>Create:</strong> Enter a unique name (e.g., “Farming”).</li>
-
                 <li><strong>Delete:</strong> Confirm; removes contained functions/variables.</li>
-
                 <li><strong>Rename:</strong> Choose new, conflict-free name.</li>
-
                 <li><strong>Inside:</strong> Add functions, create/delete variables, reset storage.</li>
-
               </ol>
-
               <div class="example">
-
                 <h5>Example: Combat vs Farming</h5>
-
                 <p class="desc">Use folders to separate logic domains.</p>
-
                 <pre><code>Folders:
-
  - Combat: mob rules, kill counters, boss events
-
  - Farming: crop harvesting rewards, tool wear tracking
-
  - Economy: shop UI, currency storage, trades
-
  - Admin: protections, broadcasts, moderation tools</code></pre>
-
               </div>
-
               <div class="tip">Start with a “Test” folder to experiment safely before committing to production structures.</div>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Functions -->
-
       <article class="section" id="functions" data-title="functions">
-
         <div class="section-header">
-
           <h2>Functions</h2>
-
           <div class="section-tools"><span class="kicker">Rules</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What is a function?</h4>
-
               <p>A function is a user-defined rule: it listens to a hook, optionally checks conditions, and performs actions (messages, commands, variable changes, or custom UI).</p>
-
               <ul class="list">
-
                 <li><strong>Trigger:</strong> A hook and optional event phase.</li>
-
                 <li><strong>Inputs:</strong> Filter items/blocks/entities/chat for precise matching.</li>
-
                 <li><strong>Conditions:</strong> Built-ins and variable expressions gating execution.</li>
-
                 <li><strong>Actions:</strong> Messages, commands, variables, or present custom UI.</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Create and edit</h4>
-
               <ol class="list">
-
                 <li><strong>Path:</strong> /menu → Folders → select/create folder → Create Function.</li>
-
                 <li><strong>Name:</strong> Unique identifier (e.g., “HealOnApple”).</li>
-
                 <li><strong>Hook:</strong> Choose trigger.</li>
-
                 <li><strong>Inputs:</strong> Configure items/blocks/entities/chat filters.</li>
-
                 <li><strong>Event:</strong> Choose before/after if available.</li>
-
                 <li><strong>Conditions:</strong> Add built-ins and variable conditions.</li>
-
                 <li><strong>Actions:</strong> Add messages/commands/variable changes/custom UI.</li>
-
               </ol>
-
               <div class="example">
-
                 <h5>Example: HealOnApple</h5>
-
                 <p class="desc">Reward on item use.</p>
-
                 <pre><code>Name: HealOnApple
-
 Hook: Item Use (after)
-
 Inputs: apple
-
 Conditions: isOnGround
-
 Actions:
-
  - message: "Apple used by {player}."
-
  - command (player): effect @s regeneration 6 1</code></pre>
-
               </div>
-
               <div class="tip">Treat functions like recipes: hook = trigger, inputs/conditions = filters, actions = outcome.</div>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Hooks -->
-
       <article class="section" id="hooks" data-title="hooks">
-
         <div class="section-header">
-
           <h2>Hooks</h2>
-
           <div class="section-tools"><span class="kicker">Triggers</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>Available hooks</h4>
-
               <ul class="list">
-
                 <li><strong>Item Use:</strong> Player uses an item (before/after).</li>
-
                 <li><strong>Player Break Block:</strong> Player breaks a block (before/after).</li>
-
                 <li><strong>Player Place Block:</strong> Player places a block (before/after).</li>
-
                 <li><strong>Player Interact With Block:</strong> Player right-clicks a block (e.g. door, chest, button, lever) (before/after).</li>
-
                 <li><strong>Entity Die:</strong> Any entity dies (after only).</li>
-
                 <li><strong>Entity Hurt:</strong> Any entity takes damage (after only).</li>
-
                 <li><strong>On Chat:</strong> Player sends a message (before/after).</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Built-in special condition</h4>
-
               <p><strong>region &lt;name&gt;:</strong> true when the event occurs inside a protected region created via <code>/region</code>.</p>
-
               <div class="tip">
-
                 Use <strong>after</strong> for rewards/logging; use <strong>before</strong> for prevention/protection.<br>
-
                 <strong>Player Interact With Block</strong> + <strong>atLocation</strong> = perfect for secret doors, hidden buttons, or pressure plates!
-
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Events -->
-
       <article class="section" id="events" data-title="events">
-
         <div class="section-header">
-
           <h2>Events</h2>
-
           <div class="section-tools"><span class="kicker">Before/After</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What are event phases?</h4>
-
               <p>Some hooks have phases: <strong>before</strong> (right before the action completes) and <strong>after</strong> (after it completes). Before-phase can cancel default behavior; after-phase is for rewards, logs, and follow-ups.</p>
-
               <ul class="list">
-
                 <li><strong>Before/After:</strong> Item Use, Break Block, Place Block, On Chat.</li>
-
                 <li><strong>After only:</strong> Entity Hurt (damage already applied), Entity Die.</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Choosing a phase</h4>
-
               <ul class="list">
-
                 <li><strong>Before:</strong> Run checks or cancel the action (protection).</li>
-
                 <li><strong>After:</strong> Run rewards, logging, variable tracking.</li>
-
               </ul>
-
               <div class="tip">If unsure, choose “after” since it’s safer and easier to reason about.</div>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Conditions -->
-
       <article class="section" id="conditions" data-title="conditions">
-
         <div class="section-header">
-
           <h2>Conditions</h2>
-
           <div class="section-tools"><span class="kicker">Checks</span></div>
-
         </div>
-
         <div class="section-body">
-
           <details class="collapse" open>
-
             <summary>Built-in player states</summary>
-
             <div class="collapse-content">
-
               <p>Use these to check the player’s current status:</p>
-
               <ul class="list">
-
                 <li><strong>isSneaking</strong>, <strong>isSprinting</strong>, <strong>isSwimming</strong>, <strong>isFlying</strong>, <strong>isGliding</strong></li>
-
                 <li><strong>isJumping</strong>, <strong>isFalling</strong>, <strong>isOnGround</strong>, <strong>isInWater</strong>, <strong>isSleeping</strong>, <strong>isClimbing</strong>, <strong>isEmoting</strong></li>
-
               </ul>
-
             </div>
-
           </details>
-
           <details class="collapse">
-
             <summary>Death & damage causes</summary>
-
             <div class="collapse-content">
-
               <ul class="list">
-
                 <li><strong>KilledByPlayer</strong>, <strong>KilledByEntity</strong>, <strong>KilledByEnvironment</strong></li>
-
                 <li><strong>CauseLava</strong>, <strong>CauseFall</strong>, <strong>CauseFire</strong>, <strong>CauseExplosion</strong></li>
-
                 <li><strong>HurtByPlayer</strong>, <strong>HurtByEntity</strong>, <strong>HurtByEnvironment</strong></li>
-
               </ul>
-
             </div>
-
           </details>
-
           <details class="collapse">
-
             <summary>Special: regions</summary>
-
             <div class="collapse-content">
-
               <p><strong>region &lt;name&gt;</strong> is true when the actor/event is inside a defined region created via <code>/region</code>.</p>
-
             </div>
-
           </details>
-
           <details class="collapse">
-
             <summary>Special: At Location</summary>
-
             <div class="collapse-content">
-
               <p><strong>atLocation &lt;x y z&gt;</strong> – True only if the event happens at the exact block coordinates.</p>
-
               <pre><code>Example: atLocation 10 54 -3</code></pre>
-
               <div class="tip">Works perfectly with Player Interact With Block, Break/Place Block, and any hook that has a block location.</div>
-
             </div>
-
           </details>
-
           <div class="tip">Combine built-in conditions with variable conditions for precise behavior and protection logic.</div>
-
         </div>
-
       </article>
-
       <!-- Inputs -->
-
       <article class="section" id="inputs" data-title="inputs">
-
         <div class="section-header">
-
           <h2>Inputs</h2>
-
           <div class="section-tools"><span class="kicker">Items, blocks, entities, chat</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What are inputs?</h4>
-
               <p>Inputs filter which item/block/entity/chat message triggers the function. They work consistently across hooks and support AND/OR logic with concise syntax.</p>
-
               <ul class="list">
-
                 <li><strong>Comma (,):</strong> OR - any one can match.</li>
-
                 <li><strong>Plus (+):</strong> AND - all parts must match.</li>
-
                 <li><strong>IDs:</strong> Short (e.g., <code>stone</code>) or full (<code>minecraft:stone</code>).</li>
-
                 <li><strong>Names/lore:</strong> Item/block/entity names and lore can be matched.</li>
-
                 <li><strong>any:</strong> Matches everything.</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Examples</h4>
-
               <pre><code>stone,dirt,oak_log # any of these
-
 diamond_sword + legendary # sword AND display name/lore contains "legendary"
-
 excalibur + sharp + epic, wand_of_healing
-
                               # EITHER sword that contains all three words OR a healing wand
-
 zombie + boss, minecraft:skeleton
-
                               # boss-tagged zombie OR any skeleton
-
 hello+world, hi there
-
                               # chat must contain both "hello" and "world" OR exact phrase "hi there"</code></pre>
-
               <div class="tip">Start with <code>any</code> to validate your function triggers, then narrow filters to the exact cases.</div>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Messages -->
-
       <article class="section" id="messages" data-title="messages">
-
         <div class="section-header">
-
           <h2>Messages</h2>
-
           <div class="section-tools"><span class="kicker">Feedback</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What are messages?</h4>
-
               <p>Messages are chat text sent when a function or loop runs. Use placeholders to include dynamic data from the event context and variables.</p>
-
               <ul class="list">
-
                 <li><strong>Multiple messages:</strong> They are sent in the order listed.</li>
-
                 <li><strong>Formatting:</strong> Use Minecraft color codes (e.g., <code>§e</code>) for styled text.</li>
-
                 <li><strong>Debug:</strong> Messages are great for testing triggers and inputs.</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Example</h4>
-
               <pre><code>Function editor → Messages → Add:
-
 "You broke a {broken block}! Score: {score}"</code></pre>
-
               <div class="tip">Use messages first to confirm behavior before adding commands.</div>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Commands -->
-
       <article class="section" id="commands" data-title="commands">
-
         <div class="section-header">
-
           <h2>Commands</h2>
-
           <div class="section-tools"><span class="kicker">Actions</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What are commands?</h4>
-
               <p>Minecraft commands executed when a function or loop triggers. Enter them without a leading slash. Choose the executor: console (server) or player (triggering user/@s).</p>
-
               <ul class="list">
-
                 <li><strong>Console executor:</strong> World-level operations.</li>
-
                 <li><strong>Player executor:</strong> Acts as the triggering player (or per-player loop actor).</li>
-
                 <li><strong>Loops:</strong> Player executor requires per-player loops.</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Example</h4>
-
               <pre><code>effect {player} speed 10 1</code></pre>
-
               <div class="tip">Test commands manually in chat first. Use console for global changes and player for personal effects.</div>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Variables -->
-
       <article class="section" id="variables" data-title="variables">
-
         <div class="section-header">
-
           <h2>Variables</h2>
-
           <div class="section-tools"><span class="kicker">Numbers & storage</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What are variables?</h4>
-
               <p>Variables store numeric values and are used in messages, commands, and conditions. You can add, remove, set, or reset them; missing variables default to 0.</p>
-
               <ul class="list">
-
                 <li><strong>Global:</strong> Shared across the world.</li>
-
                 <li><strong>Local:</strong> Per-player inside a folder.</li>
-
                 <li><strong>Fallback:</strong> Placeholders prefer local; if none, they fall back to global.</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Managing variables</h4>
-
               <ol class="list">
-
                 <li><strong>Create/register:</strong> Folder editor → Create Variable (name, scope).</li>
-
                 <li><strong>Use in actions:</strong> add/remove/set/reset in function editors.</li>
-
                 <li><strong>Delete/reset:</strong> Delete variable or reset folder storage.</li>
-
               </ol>
-
               <div class="example">
-
                 <h5>Example: Wheat counter</h5>
-
                 <pre><code>Hook: Player Break Block (after)
-
 Inputs: wheat
-
 Action: add local 'wheatbroken' by 1
-
 Message: "Wheat broken: {wheatbroken}"</code></pre>
-
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Placeholders -->
-
       <article class="section" id="placeholders" data-title="placeholders">
-
         <div class="section-header">
-
           <h2>Placeholders</h2>
-
           <div class="section-tools"><span class="kicker">Dynamic values</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What are placeholders?</h4>
-
               <p>Insert runtime values in messages, commands, and expressions using curly braces, e.g., <code>{player}</code>, <code>{item_name}</code>, <code>{kills}</code>. Modal UIs use <code>{value}</code> for user inputs.</p>
-
               <ul class="list">
-
                 <li><strong>Player:</strong> <code>{player}</code>, <code>{player health}</code>, <code>{player maxhealth}</code></li>
-
                 <li><strong>Items:</strong> <code>{item}</code>, <code>{item_name}</code>, <code>{item_lore}</code>, <code>{raw item}</code></li>
-
                 <li><strong>Blocks:</strong> <code>{broken block}</code>, <code>{placed block}</code>, <code>{interacted block}</code>, <code>{block_name}</code>, <code>{raw block}</code></li>
-
                 <li><strong>Entities:</strong> <code>{dead entity}</code>, <code>{entity_name}</code>, <code>{raw victim}</code>, attacker fields</li>
-
                 <li><strong>Combat:</strong> <code>{damage}</code>, <code>{damage cause}</code>, <code>{killer}</code></li>
-
                 <li><strong>Coords:</strong> <code>{x}</code>, <code>{y}</code>, <code>{z}</code></li>
-
                 <li><strong>Variables:</strong> <code>{varname}</code> resolves local first, then global.</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Examples</h4>
-
               <pre><code>Message: "§c{player} broke {block_name} at {x} {y} {z}"
-
 Command: "title {player} actionbar &quot;Zombies killed: {zombiekills}&quot;"
-
 Condition: "{item_name} contains &quot;legendary&quot;"</code></pre>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Globals vs Locals -->
-
       <article class="section" id="globals-locals" data-title="globals locals">
-
         <div class="section-header">
-
           <h2>Globals vs locals</h2>
-
           <div class="section-tools"><span class="kicker">Scoping</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>Globals</h4>
-
               <ul class="list">
-
                 <li><strong>Shared:</strong> Same value for everyone.</li>
-
                 <li><strong>Use for totals:</strong> e.g., total diamonds mined.</li>
-
                 <li><strong>Stored:</strong> In world data.</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Locals</h4>
-
               <ul class="list">
-
                 <li><strong>Per-player, per-folder:</strong> Each player has their own value per folder.</li>
-
                 <li><strong>Use for personal scores:</strong> e.g., player kills, playtime.</li>
-
               </ul>
-
               <div class="example">
-
                 <h5>Placeholder resolution</h5>
-
                 <pre><code>{varname} → if local exists in folder, use it; otherwise use global</code></pre>
-
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Variable Conditions -->
-
       <article class="section" id="variable-conditions" data-title="variable conditions">
-
         <div class="section-header">
-
           <h2>Variable conditions</h2>
-
           <div class="section-tools"><span class="kicker">Expressions</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What are variable conditions?</h4>
-
               <p>Expressions that evaluate to true/false to gate (require) or cancel functions. They support numeric comparisons and string checks, plus truthiness.</p>
-
               <ul class="list">
-
                 <li><strong>Numeric:</strong> <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>==</code>, <code>!=</code></li>
-
                 <li><strong>String:</strong> <code>contains</code> (case-insensitive)</li>
-
                 <li><strong>Truthy:</strong> <code>{flag}</code> true if non-zero/non-empty</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Modes and examples</h4>
-
               <ul class="list">
-
                 <li><strong>Require:</strong> expression must be true to continue.
-
                   <pre><code>{kills} &gt; 5
-
 10 == {level}
-
 {item_name} contains "magic"</code></pre>
-
                 </li>
-
                 <li><strong>Cancel:</strong> expression true will cancel the event (only valid in <em>before</em> hooks).
-
                   <pre><code>Cancel if "{protected} == 1"
-
 Cancel if "{vip} != 1" in region "vipzone"</code></pre>
-
                 </li>
-
               </ul>
-
               <div class="tip">Combine variable conditions with built-ins (e.g., <code>isSneaking</code>) to craft precise rules.</div>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Execution Flow -->
-
       <article class="section" id="execution-flow" data-title="execution flow">
-
         <div class="section-header">
-
           <h2>Execution flow</h2>
-
           <div class="section-tools"><span class="kicker">Engine lifecycle</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="sub">
-
             <h4>What happens when an event fires?</h4>
-
             <ol class="list">
-
               <li><strong>Event fires:</strong> e.g., item use, block break, chat.</li>
-
               <li><strong>Function discovery:</strong> Sync finds matching functions for the hook and phase.</li>
-
               <li><strong>Inputs check:</strong> IDs, names, lore, chat text.</li>
-
               <li><strong>Built-in conditions:</strong> Player state checks, causes.</li>
-
               <li><strong>Variable conditions:</strong> Evaluate require/cancel expressions.</li>
-
               <li><strong>Custom UI:</strong> If present, show forms; execute actions per interaction.</li>
-
               <li><strong>Actions:</strong> Otherwise, apply variables/messages/commands in order.</li>
-
             </ol>
-
             <div class="tip">Multiple functions can match and run sequentially. Loops run independently on intervals; they don’t support conditions/UI/cancellation.</div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Custom UI -->
-
       <article class="section" id="custom-ui" data-title="custom ui">
-
         <div class="section-header">
-
           <h2>Custom UI (Beta)</h2>
-
           <div class="section-tools"><span class="kicker">ActionForm & ModalForm</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What is custom UI?</h4>
-
               <p>Interactive forms shown instead of direct actions. They are available in functions (not loops). Use ActionForm for buttons and ModalForm for inputs.</p>
-
               <ul class="list">
-
                 <li><strong>ActionForm:</strong> Buttons; each triggers actions (message, command, variables, cancel, open another UI).</li>
-
                 <li><strong>ModalForm:</strong> Input fields; on submit, run actions using <code>{value}</code> placeholders.</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Example: Shop UI</h4>
-
               <pre><code>Hook: Item Use (after)
-
 Input: emerald
-
 Custom UI:
-
  - ActionForm "Shop"
-
    * Button: "Buy Sword (10 emeralds)"
-
      Actions:
-
        - command (player): give @s diamond_sword 1
-
        - variable (local): set 'emeralds' to {emeralds} - 10</code></pre>
-
               <div class="tip">Custom UI replaces direct actions for that function; players choose outcomes interactively.</div>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Event Cancellation -->
-
       <article class="section" id="event-cancellation" data-title="event cancellation">
-
         <div class="section-header">
-
           <h2>Event cancellation</h2>
-
           <div class="section-tools"><span class="kicker">Protection logic</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What is cancellation?</h4>
-
               <p>In <strong>before</strong> phases you can prevent default actions (stop place/break/use). Cancellation can be done via UI (“cancel”) or variable conditions in cancel mode.</p>
-
               <ul class="list">
-
                 <li><strong>Works for:</strong> Item Use (before), Player Break (before), Player Place (before), On Chat (before).</li>
-
                 <li><strong>Not available:</strong> after-phase hooks, Entity Hurt (after), Entity Die (after).</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Example</h4>
-
               <pre><code>Hook: Player Place Block (before)
-
 Condition: region spawn
-
 Var condition (cancel): "{protected} == 1"</code></pre>
-
               <div class="tip">Implement regions, permissions, item restrictions with cancellation to keep worlds safe.</div>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Loops -->
-
       <article class="section" id="loops" data-title="loops">
-
         <div class="section-header">
-
           <h2>Loops</h2>
-
           <div class="section-tools"><span class="kicker">Periodic actions</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What are loops?</h4>
-
               <p>Loops run every N ticks (<em>1 tick ≈ 0.05s; 20 ticks = 1s</em>). Useful for timers, counters, and repeated effects. They don’t support conditions, UI, or cancellation; they simply run actions.</p>
-
               <ul class="list">
-
                 <li><strong>Scope:</strong> Global (once per interval) or per-player (for each online player with folder locals).</li>
-
                 <li><strong>Per-player executor:</strong> Commands can run as the player when supported.</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Managing loops</h4>
-
               <ol class="list">
-
                 <li><strong>Open /loops:</strong> Loops menu.</li>
-
                 <li><strong>Create:</strong> Name (unique), interval (ticks).</li>
-
                 <li><strong>Folder:</strong> Optional; required for per-player scope.</li>
-
                 <li><strong>Scope:</strong> Choose global or per-player.</li>
-
                 <li><strong>Edit:</strong> Rename, change interval, change scope/folder, edit actions.</li>
-
               </ol>
-
               <div class="example">
-
                 <h5>Examples</h5>
-
                 <pre><code># Global day counter
-
 Interval: 24000
-
 Action: add 1 to global 'days'
-
 # Per-player playtime
-
 Folder: Stats
-
 Interval: 20
-
 Action: add 1 to local 'playtime'</code></pre>
-
               </div>
-
               <div class="tip warn">Avoid very small intervals (&lt;5 ticks); they may cause lag. Test changes in a safe world.</div>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Regions -->
-
       <article class="section" id="regions" data-title="regions">
-
         <div class="section-header">
-
           <h2>Protection regions</h2>
-
           <div class="section-tools"><span class="kicker">/region</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What are regions?</h4>
-
               <p>Simple cuboid protection regions that block placing/breaking inside defined areas using the <strong>region &lt;name&gt;</strong> condition.</p>
-
               <h4>Commands</h4>
-
               <pre><code>/region selection # clears current selection
-
 (Left-click to set Pos1; Right-click to set Pos2)
-
 Optional: /region expand # expands vertically from -64 to 319
-
 /region create &lt;name&gt; # saves the region
-
 /region list # shows all regions
-
 /region reveal &lt;name&gt; # outline with particles
-
 /region delete &lt;name&gt;</code></pre>
-
             </div>
-
             <div class="sub">
-
               <h4>Use in functions</h4>
-
               <pre><code>Hook: Player Place Block (before)
-
 Condition: region spawn
-
 Result: Player cannot place blocks in region "spawn"</code></pre>
-
               <div class="example">
-
                 <h5>Ranked zones</h5>
-
                 <pre><code>Condition: region adminzone
-
 Var condition (require): "{rank} == admin"</code></pre>
-
               </div>
-
               <div class="tip">Use <code>/region reveal &lt;name&gt;</code> to visually confirm borders during setup.</div>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Error Console -->
-
       <article class="section" id="error-console" data-title="error console">
-
         <div class="section-header">
-
           <h2>Error console</h2>
-
           <div class="section-tools"><span class="kicker">Debugging</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What is the error console?</h4>
-
               <p>A Sync menu showing recent command errors. Whenever a command fails (typo, missing target, invalid syntax), Sync logs the error here.</p>
-
               <ul class="list">
-
                 <li><strong>Visibility:</strong> A list of errors with time and command label.</li>
-
                 <li><strong>Details:</strong> Clicking an entry shows the full error message.</li>
-
                 <li><strong>Retention:</strong> Most recent errors are stored (configurable).</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>How to open and read</h4>
-
               <pre><code>/console # open error console
-
 /synchelp # help menu (may include link to console)</code></pre>
-
               <ul class="list">
-
                 <li><strong>Button:</strong> One entry per error.</li>
-
                 <li><strong>Label:</strong> Shows time and command.</li>
-
                 <li><strong>Chat:</strong> Clicking reveals the message.</li>
-
               </ul>
-
               <div class="tip good">Use console often while testing new rules; repeated errors usually indicate variable misconfiguration or syntax issues.</div>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- /variable -->
-
       <article class="section" id="variable-command" data-title="variable command">
-
         <div class="section-header">
-
           <h2>/variable command</h2>
-
           <div class="section-tools"><span class="kicker">Direct variable control</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What is /variable?</h4>
-
               <p>Directly modify stored variables. Variables are numeric; you can increase, decrease, set, or reset them.</p>
-
               <h4>Syntax</h4>
-
               <pre><code>/variable &lt;add|set|remove|reset&gt; &lt;local|global&gt; &lt;folder&gt; &lt;varname&gt; [player] [amount]</code></pre>
-
               <ul class="list">
-
                 <li><strong>local:</strong> scope requires a player (executor or specified).</li>
-
                 <li><strong>global:</strong> shared across world.</li>
-
                 <li><strong>amount:</strong> defaults to 1 for add/remove.</li>
-
                 <li><strong>reset:</strong> ignores amount and sets value to 0.</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Examples and tips</h4>
-
               <pre><code>/variable set global stats diamondbreak 100
-
 /variable add local stats diamondbreak Steve 1</code></pre>
-
               <ul class="list">
-
                 <li><strong>Per-player counters:</strong> Use locals for kills/blocks broken.</li>
-
                 <li><strong>Shared stats:</strong> Use globals for world totals.</li>
-
                 <li><strong>Combine:</strong> Use variable conditions like <code>{kills} &gt; 10</code> to gate rewards.</li>
-
               </ul>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- /varlist -->
-
       <article class="section" id="varlist-command" data-title="varlist command">
-
         <div class="section-header">
-
           <h2>/varlist command</h2>
-
           <div class="section-tools"><span class="kicker">Inspection</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What is /varlist?</h4>
-
               <p>Shows variables inside a folder, either global or local.</p>
-
               <h4>Syntax</h4>
-
               <pre><code>/varlist &lt;local|global&gt; &lt;folder&gt; [player]</code></pre>
-
               <ul class="list">
-
                 <li><strong>local:</strong> requires a player (executor or specified).</li>
-
                 <li><strong>global:</strong> lists shared folder variables.</li>
-
                 <li><strong>Output:</strong> Names with current values.</li>
-
               </ul>
-
             </div>
-
             <div class="sub">
-
               <h4>Examples and tips</h4>
-
               <pre><code>/varlist global stats
-
 /varlist local stats Steve</code></pre>
-
               <ul class="list">
-
                 <li><strong>Debug changes:</strong> Run after <code>/variable</code> to confirm updates.</li>
-
                 <li><strong>Check counters:</strong> Useful for scores, storage values.</li>
-
               </ul>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- /broadcast -->
-
       <article class="section" id="broadcast-command" data-title="broadcast command">
-
         <div class="section-header">
-
           <h2>/broadcast command</h2>
-
           <div class="section-tools"><span class="kicker">Global messaging</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What is /broadcast?</h4>
-
               <p>Sends a message to all players in the world.</p>
-
               <h4>Syntax</h4>
-
               <pre><code>/broadcast [message]</code></pre>
-
               <h4>Example</h4>
-
               <pre><code>/broadcast "Welcome to the server!"</code></pre>
-
             </div>
-
             <div class="sub">
-
               <h4>Tips</h4>
-
               <ul class="list">
-
                 <li><strong>Announcements:</strong> Use for server-wide notifications.</li>
-
                 <li><strong>Quoting:</strong> Wrap the message in quotes.</li>
-
                 <li><strong>Tag:</strong> Messages can show a broadcast tag if configured.</li>
-
               </ul>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- /send -->
-
       <article class="section" id="send-command" data-title="send command">
-
         <div class="section-header">
-
           <h2>/send command</h2>
-
           <div class="section-tools"><span class="kicker">Whispers</span></div>
-
         </div>
-
         <div class="section-body">
-
           <div class="cols">
-
             <div class="sub">
-
               <h4>What is /send?</h4>
-
               <p>Sends a private message to a specific player.</p>
-
               <h4>Syntax</h4>
-
               <pre><code>/send &lt;player&gt; [message]</code></pre>
-
               <h4>Example</h4>
-
               <pre><code>/send Steve "Hey, want to team up?"</code></pre>
-
             </div>
-
             <div class="sub">
-
               <h4>How it works</h4>
-
               <ul class="list">
-
                 <li><strong>Visibility:</strong> Only the target sees the message.</li>
-
                 <li><strong>Confirmation:</strong> Sender may get delivery confirmation if implemented.</li>
-
                 <li><strong>Exact name:</strong> Type the precise player name or use {player}.</li>
-
               </ul>
-
             </div>
-
           </div>
-
         </div>
-
       </article>
-
       <!-- Tips, Examples & Best Practices -->
-
       <article class="section" id="tips" data-title="tips examples best practices">
-
         <div class="section-header">
-
           <h2>Tips, examples & best practices</h2>
-
           <div class="section-tools"><span class="kicker">Playbook</span></div>
-
         </div>
-
         <div class="section-body">
-
           <details class="collapse" open>
-
             <summary>Pro tips</summary>
-
             <div class="collapse-content">
-
               <ul class="list">
-
                 <li><strong>Validate with messages:</strong> Test logic before adding commands.</li>
-
                 <li><strong>Use /console:</strong> Debug failed commands instantly.</li>
-
                 <li><strong>Name logically:</strong> Folders like <code>Combat</code>, <code>Farming</code>, <code>Economy</code>, <code>Admin</code>.</li>
-
                 <li><strong>Scope smartly:</strong> locals for per-player stats, globals for totals.</li>
-
                 <li><strong>Intervals:</strong> Small loop intervals (&lt;5) can cause lag.</li>
-
                 <li><strong>any input:</strong> Matches everything; great for testing triggers.</li>
-
                 <li><strong>Region reveal:</strong> <code>/region reveal &lt;name&gt;</code> to verify borders.</li>
-
               </ul>
-
             </div>
-
           </details>
-
           <details class="collapse">
-
             <summary>Real-world examples</summary>
-
             <div class="collapse-content">
-
               <div class="example">
-
                 <h5>1) Auto-Farm Reward</h5>
-
                 <p class="desc">Track wheat break count and provide feedback.</p>
-
                 <pre><code>Hook: Player Break Block (after)
-
             Input: wheat
-
             Action: add local 'wheatbroken' by 1
-
             Message: "Wheat broken: {wheatbroken}"</code></pre>
-
               </div>
-
            
-
               <div class="example">
-
                 <h5>2) VIP Only Zone</h5>
-
                 <p class="desc">Cancel placement for non-VIPs in region.</p>
-
                 <pre><code>Hook: Player Place Block (before)
-
             Condition: region vipzone
-
             Var condition (cancel): "{vip} != 1"</code></pre>
-
               </div>
-
            
-
               <div class="example">
-
                 <h5>3) Kill Counter + Title</h5>
-
                 <p class="desc">Track per-player zombie kills.</p>
-
                 <pre><code>Hook: Entity Die (after)
-
             Input: zombie
-
             Condition: KilledByPlayer
-
             Action: add local 'zombiekills' by 1
-
             Command: title {player} actionbar "Zombies killed: {zombiekills}"</code></pre>
-
               </div>
-
            
-
               <div class="example">
-
                 <h5>4) Daily Login Reward</h5>
-
                 <p class="desc">Global loop giving daily rewards.</p>
-
                 <pre><code>Loop: global, interval 24000
-
             Command: give @a diamond 1
-
             Broadcast: "Daily reward claimed!"</code></pre>
-
               </div>
-
            
-
               <div class="example">
-
                 <h5>5) Custom Shop</h5>
-
                 <p class="desc">Interactive purchase using emeralds.</p>
-
                 <pre><code>Hook: Item Use (after)
-
             Input: emerald
-
             Custom UI:
-
              - Button: "Buy Sword (10 emeralds)"
-
                Actions:
-
                  - command (player): give @s diamond_sword
-
                  - variable (local): set 'emeralds' to {emeralds} - 10</code></pre>
-
               </div>
-
            
-
               <div class="example">
-
                 <h5>6) Anti-Grief Logging</h5>
-
                 <p class="desc">Log block breaks with coordinates.</p>
-
                 <pre><code>Hook: Player Break Block (after)
-
             Message: "§c{player} broke {block_name} at {x} {y} {z}"</code></pre>
-
               </div>
-
            
-
               <div class="example">
-
                 <h5>7) Player Level Tracker</h5>
-
                 <p class="desc">Track XP level ups and reward items.</p>
-
                 <pre><code>Hook: On Chat (after)
-
             Input: "level up"
-
             Action: add local 'levels' by 1
-
             Command: give {player} golden_apple 1
-
             Message: "Congrats {player}, you reached level {levels}!"</code></pre>
-
               </div>
-
            
-
               <div class="example">
-
                 <h5>8) Region-Based Mining Restriction</h5>
-
                 <p class="desc">Prevent diamond mining in protected zone.</p>
-
                 <pre><code>Hook: Player Break Block (before)
-
             Input: diamond_ore
-
             Condition: region minezone
-
             Var condition (cancel): "{rank} != admin"</code></pre>
-
               </div>
-
            
-
               <div class="example">
-
                 <h5>9) Boss Fight Announcer</h5>
-
                 <p class="desc">Broadcast when a boss mob dies.</p>
-
                 <pre><code>Hook: Entity Die (after)
-
             Input: wither
-
             Broadcast: "§cThe Wither has been defeated by {player}!"</code></pre>
-
               </div>
-
            
-
               <div class="example">
-
                 <h5>10) Chat Keyword Trigger</h5>
-
                 <p class="desc">Run commands when players type keywords.</p>
-
                 <pre><code>Hook: On Chat (after)
-
             Input: "help"
-
             Command: tell {player} "Use /synchelp for guidance."</code></pre>
-
               </div>
-
            
-
               <div class="example">
-
                 <h5>11) Playtime Counter</h5>
-
                 <p class="desc">Track per-player playtime with loops.</p>
-
                 <pre><code>Loop: per-player, interval 20
-
             Folder: Stats
-
             Action: add local 'playtime' by 1
-
             Command (player): "title @s actionbar Playtime: {playtime} seconds"</code></pre>
-
               </div>
-
            
-
               <div class="example">
-
                 <h5>12) Hunger-Based Reward</h5>
-
                 <p class="desc">Give food when hunger drops below threshold.</p>
-
                 <pre><code>Hook: Item Use (after)
-
             Condition: "{player hunger} < 5"
-
             Command: give {player} bread 1
-
             Message: "You were hungry, here's some bread!"</code></pre>
-
               </div>
-
            
-
               <div class="example">
-
                 <h5>13) PvP Kill Streak</h5>
-
                 <p class="desc">Reward players after multiple kills.</p>
-
                 <pre><code>Hook: Entity Die (after)
-
             Condition: KilledByPlayer
-
             Action: add local 'killstreak' by 1
-
             Var condition (require): "{killstreak} >= 5"
-
             Command: give {player} diamond_sword 1
-
             Message: "Kill streak achieved! Reward granted."</code></pre>
-
               </div>
-
            
-
               <div class="example">
-
                 <h5>14) Region Entry Message</h5>
-
                 <p class="desc">Notify players when entering a region.</p>
-
                 <pre><code>Hook: Player Place Block (after)
-
             Condition: region spawn
-
             Message: "Welcome to the spawn region!"</code></pre>
-
               </div>
-
            
-
               <div class="example">
-
                 <h5>15) Seasonal Event Loop</h5>
-
                 <p class="desc">Give gifts every in-game day.</p>
-
                 <pre><code>Loop: global, interval 24000
-
             Command: give @a cookie 1
-
             Broadcast: "Daily cookie gift delivered!"</code></pre>
-
               </div>
-
               <div class="example">
-
                 <h5>16) Secret Button at Exact Location</h5>
-
                 <p class="desc">Only trigger when player right-clicks a specific button.</p>
-
                 <pre><code>Hook: Player Interact With Block (after)
-
             Input: stone_button
-
             Condition: atLocation 120 64 -85
-
             Message: "§aYou found the secret button!"
-
             Command: give {player} diamond 5</code></pre>
-
               </div>
-
             </div>
-
             </details>
-
           <details class="collapse">
-
             <summary>Troubleshooting patterns</summary>
-
             <div class="collapse-content">
-
               <ul class="list">
-
                 <li><strong>Nothing happens:</strong> Use <code>any</code> inputs and add a message to confirm your hook triggers. If it does, tighten filters.</li>
-
                 <li><strong>Command failing:</strong> Test the exact command in chat; then choose correct executor (console/player). Check <code>/console</code> for errors.</li>
-
                 <li><strong>Variable not updating:</strong> Ensure you’re modifying the correct scope (local vs global) and folder. Inspect with <code>/varlist</code>.</li>
-
                 <li><strong>Cancellation not working:</strong> Verify you’re in a <em>before</em> phase and using cancel mode or a UI cancel action.</li>
-
                 <li><strong>Region condition false:</strong> Confirm selection, creation, and name. Use <code>/region reveal &lt;name&gt;</code> to visualize.</li>
-
                 <li><strong>Lag spikes:</strong> Reduce loop frequency; consolidate similar actions; avoid spammy messages.</li>
-
               </ul>
-
             </div>
-
           </details>
-
         </div>
-
       </article>
-
       <div class="footer">
-
         <div class="credits">
-
           <span class="credit-badge">Made for Sync Addon</span>
-
           <span class="credit-badge">Developed & maintained by ExterLeo</span>
-
           <span class="credit-badge">Minecraft Bedrock</span>
-
         </div>
-
         <div>© Sync Documentation 2025 | ExterLeo</div>
-
       </div>
-
     </main>
-
   </div>
-
   <script>
-
   function timeAgo(date) {
-
     const diffInSeconds = Math.floor((new Date() - date) / 1000);
-
  
-
     const days = Math.floor(diffInSeconds / (24 * 3600));
-
     const hours = Math.floor((diffInSeconds % (24 * 3600)) / 3600);
-
     const minutes = Math.floor((diffInSeconds % 3600) / 60);
-
     const seconds = diffInSeconds % 60;
-
  
-
     let result = "";
-
     if (days > 0) result += days + "d ";
-
     if (hours > 0 || days > 0) result += hours + "h ";
-
     if (minutes > 0 || hours > 0 || days > 0) result += minutes + "m ";
-
     result += seconds + "s ago";
-
  
-
     return result;
-
   }
-
  
-
   const updatedDate = new Date("2025-11-27T09:03:00-04:00");
-
  
-
   function refreshTimeAgo() {
-
     document.getElementById("updated").textContent = timeAgo(updatedDate);
-
   }
-
  
-
   refreshTimeAgo();
-
   setInterval(refreshTimeAgo, 1000);
-
   (function(){
-
     const input = document.getElementById('searchInput');
-
     const sections = Array.from(document.querySelectorAll('article.section'));
-
     const navLinks = Array.from(document.querySelectorAll('.nav a'));
-
  
-
     function normalize(t){ return (t||'').toLowerCase(); }
-
  
-
     function clearHighlights(el){
-
       const marks = el.querySelectorAll('mark');
-
       marks.forEach(m => {
-
         const text = document.createTextNode(m.textContent);
-
         m.parentNode.replaceChild(text, m);
-
         m.parentNode.normalize();
-
       });
-
     }
-
  
-
     function highlight(el, needle){
-
       if(!needle) return;
-
       const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
-
       const matches = [];
-
       while(walker.nextNode()){
-
         const node = walker.currentNode;
-
         const text = node.nodeValue;
-
         const idx = text.toLowerCase().indexOf(needle);
-
         if(idx > -1 && text.trim().length){
-
           matches.push({ node, idx, len: needle.length });
-
         }
-
       }
-
       matches.forEach(m=>{
-
         const { node, idx, len } = m;
-
         const span = document.createElement('span');
-
         const before = document.createTextNode(node.nodeValue.slice(0, idx));
-
         const mark = document.createElement('mark');
-
         mark.textContent = node.nodeValue.slice(idx, idx+len);
-
         const after = document.createTextNode(node.nodeValue.slice(idx+len));
-
         span.appendChild(before); span.appendChild(mark); span.appendChild(after);
-
         node.parentNode.replaceChild(span, node);
-
       });
-
     }
-
  
-
     function fuzzyMatch(text, query){
-
       if(!text || !query) return false;
-
       return text.includes(query) || (query.length > 2 && text.indexOf(query.slice(0, query.length-1)) > -1);
-
     }
-
  
-
     function search(){
-
       const q = normalize(input.value.trim());
-
       navLinks.forEach(a => a.classList.remove('hidden'));
-
  
-
       sections.forEach(sec => {
-
         clearHighlights(sec);
-
         if(!q){
-
           sec.classList.remove('hidden');
-
           return;
-
         }
-
         const title = normalize(sec.querySelector('.section-header h2')?.textContent || '');
-
         const bodyText = normalize(sec.querySelector('.section-body')?.textContent || '');
-
         const ok = title.includes(q) || bodyText.includes(q) || fuzzyMatch(title,q) || fuzzyMatch(bodyText,q);
-
         sec.classList.toggle('hidden', !ok);
-
         if(ok){ highlight(sec, q); }
-
       });
-
  
-
       navLinks.forEach(a => {
-
         const target = document.querySelector(a.getAttribute('href'));
-
         if(!target) return;
-
         a.classList.toggle('hidden', target.classList.contains('hidden'));
-
       });
-
     }
-
  
-
     function debounce(fn, delay=200){
-
       let timer;
-
       return (...args)=>{
-
         clearTimeout(timer);
-
         timer=setTimeout(()=>fn(...args),delay);
-
       };
-
     }
-
  
-
     input.addEventListener('input', debounce(search,200));
-
   })();
-
  
-
   (function(){
-
     document.querySelectorAll('.nav a').forEach(a=>{
-
       a.addEventListener('click', e=>{
-
         const id = a.getAttribute('href');
-
         const target = document.querySelector(id);
-
         if(target){
-
           e.preventDefault();
-
           window.scrollTo({ top: target.offsetTop - 10, behavior: 'smooth' });
-
           history.replaceState(null, '', id);
-
         }
-
       });
-
     });
-
   })();
-
   </script>
-
 </body>
-
 </html>
