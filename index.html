@@ -593,91 +593,6 @@
     .back-to-top:hover {
       transform: scale(1.2);
     }
-    .download-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(8px);
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      animation: fadeIn 0.4s ease-out;
-    }
-    .download-modal-content {
-      background: rgba(20,20,20,0.95);
-      border: 2px solid #FFD700;
-      border-radius: 20px;
-      padding: 40px;
-      text-align: center;
-      box-shadow: 0 0 40px rgba(255,215,0,0.6);
-      max-width: 500px;
-      width: 90%;
-      animation: modalPop 0.6s ease-out;
-    }
-    .download-modal h1 {
-      font-size: 2.5em;
-      margin-bottom: 20px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: #FFD700;
-      text-shadow: 0 0 15px #FFD700, 0 0 30px #FFA500;
-      animation: glow 2s infinite alternate;
-    }
-    .download-modal .addon-image {
-      width: 300px;
-      border-radius: 12px;
-      border: 2px solid #FFD700;
-      margin: 20px auto;
-      box-shadow: 0 0 25px rgba(255,215,0,0.6);
-      transition: transform 0.4s;
-    }
-    .download-modal .addon-image:hover { transform: scale(1.06); }
-    .download-modal .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 30px;
-      flex-wrap: wrap;
-    }
-    .download-modal .btn {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: linear-gradient(135deg, #FFD700, #FFA500);
-      color: #111;
-      font-weight: bold;
-      padding: 16px 28px;
-      border-radius: 12px;
-      text-decoration: none;
-      box-shadow: 0 0 20px rgba(255,215,0,0.9);
-      transition: all 0.3s ease;
-    }
-    .download-modal .btn:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 0 35px rgba(255,215,0,1);
-    }
-    .download-modal .btn img { width: 32px; height: 32px; }
-    .close-modal {
-      position: absolute;
-      top: 20px;
-      right: 30px;
-      font-size: 40px;
-      color: #FFD700;
-      cursor: pointer;
-      opacity: 0.8;
-      transition: opacity 0.3s;
-    }
-    .close-modal:hover { opacity: 1; }
-
-    @keyframes modalPop {
-      from { opacity: 0; transform: scale(0.7); }
-      to   { opacity: 1; transform: scale(1); }
-    }
-    @keyframes glow {
-      from { text-shadow: 0 0 10px #FFD700, 0 0 20px #FFA500; }
-      to   { text-shadow: 0 0 20px #FFD700, 0 0 40px #FFA500; }
-    }
   </style>
 </head>
 <head>
@@ -1741,34 +1656,7 @@ Var condition (require): "{rank} == admin"</code></pre>
       <img src="https://i.ibb.co/qYBYrqJK/New-Project-36.png" alt="Endstone Version">
     </a>
   </div>
-  <div id="downloadModal" class="download-modal">
-    <div class="download-modal-content">
-      <span class="close-modal" id="closeModal">×</span>
-      <h1>Download Options</h1>
-      <img class="addon-image" src="https://media.forgecdn.net/attachments/1404/148/new-project-32-_11zon-png.png" alt="Sync Addon">
-      <div class="buttons">
-        <a class="btn" href="https://mcpedl.com/sync-create-mods-without-coding/" target="_blank">
-          <img src="https://tse1.mm.bing.net/th/id/OIP.3K9aHELTl_uvA1UVJSBE9QAAAA?rs=1&pid=ImgDetMain&o=7&rm=3" alt="MCPEDL">
-          MCPEDL
-        </a>
-        <a class="btn" href="https://www.curseforge.com/minecraft-bedrock/addons/sync-create-mods-without-coding" target="_blank">
-          <img src="https://www.curseforge.com/favicon.ico" alt="CurseForge">
-          CurseForge
-        </a>
-      </div>
-    </div>
-  </div>
   <script>
-    const modal = document.getElementById("downloadModal");
-    const openBtn = document.getElementById("openDownloadBtn");
-    const closeBtn = document.getElementById("closeModal");
-
-    openBtn.onclick = () => modal.style.display = "flex";
-    closeBtn.onclick = () => modal.style.display = "none";
-    // Close when clicking outside the card
-    modal.onclick = (e) => {
-      if (e.target === modal) modal.style.display = "none";
-    };
   function timeAgo(date) {
     const diffInSeconds = Math.floor((new Date() - date) / 1000);
  
@@ -1786,12 +1674,11 @@ Var condition (require): "{rank} == admin"</code></pre>
     return result;
   }
  
-  const updatedDate = new Date("2025-11-28T06:05:00-04:00");
+ const updatedDate = new Date("2025-11-28T06:05:00-04:00");
  
   function refreshTimeAgo() {
     document.getElementById("updated").textContent = timeAgo(updatedDate);
   }
-  
  
   refreshTimeAgo();
   setInterval(refreshTimeAgo, 1000);
