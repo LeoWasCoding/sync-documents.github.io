@@ -59,13 +59,67 @@
       max-width: 1920px; /* Added max-width for large screens to prevent over-stretching */
       margin: 0 auto; /* Center the layout */
     }
+    .top-buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding: 20px 10px;
+      background: linear-gradient(180deg, #0b0b0b, #121212);
+      flex-wrap: wrap;
+      z-index: 10;
+      position: relative;
+    }
+    
+    .top-btn {
+      display: block;
+      width: 400px;
+      max-width: 90vw;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform var(--transition-medium), box-shadow var(--transition-medium);
+      border: 1px solid var(--border);
+    }
+    
+    .top-btn:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 20px 40px rgba(255,204,0,0.25);
+      border-color: var(--accent);
+    }
+    
+    .top-btn img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      display: block;
+      transition: filter var(--transition-medium);
+    }
+    
+    .top-btn:hover img {
+      filter: brightness(1.15);
+    }
+    
+    @media (max-width: 1300px) {
+      .top-buttons { gap: 15px; padding: 15px 10px; }
+      .top-btn { width: 350px; }
+      .top-btn img { height: 131px; }
+    }
+    @media (max-width: 1100px) {
+      .top-buttons { flex-direction: column; }
+      .top-btn { width: 400px; }
+      .top-btn img { height: 150px; }
+    }
+    @media (max-width: 480px) {
+      .top-btn { width: 95vw; }
+    }
     .sidebar{
       position:sticky; top:0; align-self:start;
       height:100vh; overflow:auto;
       background:linear-gradient(180deg, #1a1a1a 0%, #0e0e0e 100%);
       border-right:1px solid var(--border);
       padding:20px 18px;
-      transition: background var(--transition-slow), width var(--transition-medium); /* Added width transition for stretching */
+      transition: background var(--transition-slow), width var(--transition-medium);
     }
     .sidebar:hover {
       background:linear-gradient(180deg, #1f1f1f 0%, #121212 100%);
@@ -552,6 +606,18 @@
   <meta name="twitter:image" content="https://media.forgecdn.net/attachments/1404/148/new-project-32-_11zon-png.png">
 </head>
 <body>
+  <!-- Top Social / Version Buttons -->
+  <div class="top-buttons">
+    <a href="https://youtube.com/@ExterLeo" target="_blank" rel="noopener" class="top-btn">
+      <img src="https://i.ibb.co/5Xsw1yRz/New-Project-34.png" alt="YouTube">
+    </a>
+    <a href="https://discord.gg/dWS69pE3qj" target="_blank" rel="noopener" class="top-btn">
+      <img src="https://i.ibb.co/bjFCBz0J/New-Project-35.png" alt="Discord">
+    </a>
+    <a href="https://discord.gg/dWS69pE3qj" target="_blank" rel="noopener" class="top-btn">
+      <img src="https://i.ibb.co/qYBYrqJK/New-Project-36.png" alt="Endstone Version">
+    </a>
+  </div>
   <div class="layout">
     <!-- Sidebar -->
     <aside class="sidebar">
