@@ -640,6 +640,7 @@
         <a href="#placeholders"><span class="dot"></span>Placeholders</a>
         <a href="#globals-locals"><span class="dot"></span>Globals vs Locals</a>
         <a href="#variable-conditions"><span class="dot"></span>Variable conditions</a>
+        <a href="#random-variables"><span class="dot"></span>Random Variables</a>
         <h3>Flow & Control</h3>
         <a href="#execution-flow"><span class="dot"></span>Execution flow</a>
         <a href="#custom-ui"><span class="dot"></span>Custom UI (Beta)</a>
@@ -838,6 +839,7 @@ Actions:
                 <li><strong>Entity Die:</strong> Any entity dies (after only).</li>
                 <li><strong>Entity Hurt:</strong> Any entity takes damage (after only).</li>
                 <li><strong>On Chat:</strong> Player sends a message (before/after).</li>
+                <li><strong>On Hold:</strong> Triggers repeatedly while holding an item (after only).</li>
               </ul>
             </div>
             <div class="sub">
@@ -1149,6 +1151,34 @@ Cancel if "{vip} != 1" in region "vipzone"</code></pre>
                 </li>
               </ul>
               <div class="tip">Combine variable conditions with built-ins (e.g., <code>isSneaking</code>) to craft precise rules.</div>
+            </div>
+          </div>
+        </div>
+      </article>
+      <!-- Random Variables -->
+      <article class="section" id="random-variables" data-title="random variables">
+        <div class="section-header">
+          <h2>Random Variables</h2>
+          <div class="section-tools"><span class="kicker">Dynamic randomness</span></div>
+        </div>
+        <div class="section-body">
+          <div class="cols">
+            <div class="sub">
+              <h4>What are Random Variables?</h4>
+              <p>Random variables let you define dynamic random values that can be used with <code>{name}</code> in messages, commands, or variable conditions.</p>
+              <p>They are created and managed in the Folder Editor → "Create Random Var".</p>
+            </div>
+            <div class="sub">
+              <h4>Supported formats</h4>
+              <pre><code>1-100                  → random integer from 1 to 100
+      stone,dirt,oak_log     → picks one item/block/entity
+      10%,50%,40%            → weighted chance (must add up to 100%)
+      hello world, hi, hey!  → random text phrase</code></pre>
+              <h4>Examples</h4>
+              <pre><code>{rarity} = common,70%,rare,20%,epic,9%,legendary,1%
+      {damage} = 5-12
+      {greeting} = Hello,Hi there,Hey!</code></pre>
+              <div class="tip good">Perfect for loot tables, random events, RPG damage, greetings, and anything that needs controlled randomness!</div>
             </div>
           </div>
         </div>
@@ -1678,7 +1708,7 @@ Var condition (require): "{rank} == admin"</code></pre>
     return result;
   }
  
- const updatedDate = new Date("2025-11-28T06:05:00-04:00");
+ const updatedDate = new Date("2025-12-1T13:30:00-04:00");
  
   function refreshTimeAgo() {
     document.getElementById("updated").textContent = timeAgo(updatedDate);
