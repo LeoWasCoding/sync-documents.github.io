@@ -826,29 +826,62 @@ Actions:
       <article class="section" id="hooks" data-title="hooks">
         <div class="section-header">
           <h2>Hooks</h2>
-          <div class="section-tools"><span class="kicker">Triggers</span></div>
+          <div class="section-tools"><span class="kicker">Triggers • 21 Total</span></div>
         </div>
         <div class="section-body">
           <div class="cols">
             <div class="sub">
               <h4>Available hooks</h4>
               <ul class="list">
-                <li><strong>Item Use:</strong> Player uses an item (before/after).</li>
-                <li><strong>Player Break Block:</strong> Player breaks a block (before/after).</li>
-                <li><strong>Player Place Block:</strong> Player places a block (before/after).</li>
-                <li><strong>Player Interact With Block:</strong> Player right-clicks a block (e.g. door, chest, button, lever) (before/after).</li>
-                <li><strong>Entity Die:</strong> Any entity dies (after only).</li>
-                <li><strong>Entity Hurt:</strong> Any entity takes damage (after only).</li>
-                <li><strong>On Chat:</strong> Player sends a message (before/after).</li>
-                <li><strong>On Hold:</strong> Triggers repeatedly while holding an item (after only).</li>
+      
+                <!-- Item & Use Hooks -->
+                <li><strong>Item Use</strong> - Right-click air with an item <em>(before/after)</em></li>
+                <li><strong>Item Start Use</strong> - Begin charging bow, shield, crossbow, goat horn, etc <em>(after only)</em></li>
+                <li><strong>Item Stop Use</strong> - Stop charging (cancelled/interrupted) <em>(after only)</em></li>
+                <li><strong>Item Start Use On</strong> - Start using on block (bone meal, flint & steel, hoe) <em>(after only)</em></li>
+                <li><strong>Item Stop Use On</strong> - Stop using on block <em>(after only)</em></li>
+                <li><strong>Item Complete Use</strong> - Finish eating food, drinking potion, chorus fruit, etc <em>(after only)</em></li>
+                <li><strong>Item Release Use</strong> - Release charged bow, trident, etc <em>(after only)</em></li>
+                <li><strong>On Hold</strong> - Fires every tick while holding an item <em>(after only)</em></li>
+      
+                <!-- Block Hooks -->
+                <li><strong>Player Break Block</strong> - Player breaks a block <em>(before/after)</em></li>
+                <li><strong>Player Place Block</strong> - Player places a block <em>(before/after)</em></li>
+                <li><strong>Player Interact With Block</strong> - Right-click door, chest, button, lever, etc. <em>(before/after)</em></li>
+      
+                <!-- Entity Hooks -->
+                <li><strong>Entity Die</strong> - Any entity dies <em>(after only)</em></li>
+                <li><strong>Entity Hurt</strong> - Any entity takes damage <em>(after only) before event is coming soon!</em></li>
+                <li><strong>Entity Spawn</strong> - Mob, item, projectile, armor stand, etc spawns <em>(after only)</em></li>
+                <li><strong>Entity Remove</strong> - Entity is deleted from the world <em>(before/after)</em></li>
+                <li><strong>Entity Hit Block</strong> - <em>(after only)</em></li>
+                <li><strong>Player Interact With Entity</strong> - Right-click villager, armor stand, boat, minecart, etc. <em>(before/after)</em></li>
+      
+                <!-- Player & Chat -->
+                <li><strong>On Chat</strong> - Player sends a message <em>(before/after)</em></li>
+                <li><strong>Player Join</strong> - Player joins the world <em>(after only)</em></li>
+                <li><strong>Player Leave</strong> - Player leaves the world <em>(after only)</em></li>
+                <li><strong>Player Spawn</strong> - Player spawns or respawns (including first join) <em>(after only)</em></li>
               </ul>
             </div>
+      
             <div class="sub">
-              <h4>Built-in special condition</h4>
-              <p><strong>region &lt;name&gt;:</strong> true when the event occurs inside a protected region created via <code>/region</code>.</p>
+              <h4>Built-in special conditions</h4>
+              <p>
+                <strong>region &lt;name&gt;</strong> - True when the event happens inside a protected region created with <code>/sync:region</code><br>
+                <strong>atLocation &lt;x y z&gt;</strong> - Event occurs at exact coordinates
+              </p>
+      
               <div class="tip">
-                Use <strong>after</strong> for rewards/logging; use <strong>before</strong> for prevention/protection.<br>
-                <strong>Player Interact With Block</strong> + <strong>atLocation</strong> = perfect for secret doors, hidden buttons, or pressure plates!
+                <strong>Pro Tips:</strong><br>
+                • Use <strong>before</strong> phases to <u>cancel/prevent</u> actions (anti-grief, permissions)<br>
+                • Use <strong>after</strong> phases for <u>rewards, logging, effects</u><br>
+                • <strong>Entity Hit Block</strong> + <strong>Player Break block</strong> + <strong>Player Place Block</strong> + <strong>Player Interact With Block</strong> + <strong>region</strong> = perfect for region protection<br>
+                • <strong>Player Interact With Entity</strong> + <strong>before</strong> = custom NPC dialogues, shops, quests!
+              </div>
+      
+              <div class="badge badge-new" style="margin-top: 12px;">
+                NEW IN v1.3 - 13 new hooks • Full projectile & player tracking
               </div>
             </div>
           </div>
